@@ -33,9 +33,9 @@ namespace FerreSystemWPF
             set { _ticketItemList = value; }
         }
 
-        TicketItem _ttprice = new TicketItem();
+        ObservableCollection<TicketItem> _ttprice = new ObservableCollection<TicketItem>();
 
-        public TicketItem TicketTotalP
+        public ObservableCollection<TicketItem> TicketTotalPrice
         {
             get { return _ttprice; }
             set { _ttprice = value; }
@@ -63,6 +63,7 @@ namespace FerreSystemWPF
             DataContext = this;
             RunAsync();
             File.WriteAllText("exrate.txt","3.25");
+            TicketTotalPrice.Add(new TicketItem { TotalPrice = 0});
         }
 
         public void RunAsync()
@@ -211,14 +212,23 @@ namespace FerreSystemWPF
 
                 TicketItemList.Add(new TicketItem { Nitem = n, Quantity = qua, Item = item, UnitPrice = price, TotalPrice = tprice });
                 Clear();
-                TicketTotalP.TotalPrice += tprice;
+                double ttprice = TicketTotalPrice[0].TotalPrice + tprice;
+                TicketTotalPrice.Clear();
+                TicketTotalPrice.Add(new TicketItem { TotalPrice = ttprice });
             }
         }
 
         private void DelItem_Click(object sender, RoutedEventArgs e)
         {
             TicketItem p = TicketItems.SelectedItem as TicketItem;
-            _ticketItemList.Remove(p);
+            if (p != null)
+            {
+                TicketItemList.Remove(p);
+                double ttprice = TicketTotalPrice[0].TotalPrice - p.TotalPrice;
+                TicketTotalPrice.Clear();
+                TicketTotalPrice.Add(new TicketItem { TotalPrice = ttprice });
+                DelItem.IsEnabled = false;
+            }
         }
 
         private void TicketItems_SelectionChanged(object sender, SelectionChangedEventArgs e)
