@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 
-namespace FerreSystemApi.Models
+namespace FerreSystemWPF
 {
     public class Product
     {
         public int ProductId { get; set; }
-        [Required]
-        public string Name { get; set; }
+        public string Name { get; set; }        
         public double? PurchPriceSol { get; set; }
         public double? PurchPriceDol { get; set; }
         public double? WholesalePrice { get; set; }
