@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -20,10 +23,32 @@ namespace FerreSystemWPF
     /// Interaction logic for Agregar.xaml
     /// </summary>
     public partial class AddProducts : Window
-    { 
+    {
+        HttpClient client;
+        public double exrate = Convert.ToDouble(File.ReadAllText("exrate.txt"));
+
+        IEnumerable<Product> _products = null;
+        public IEnumerable<Product> Products
+        {
+            get { return _products; }
+            set { _products = value; }
+        }
+
+        private void RunAsync()
+        {
+            client = new HttpClient()
+            {
+                BaseAddress = new Uri("http://localhost:50236")
+            };
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        }
+
         public AddProducts()
         {
             InitializeComponent();
+            DataContext = this;
+            RunAsync();
             AddProductsList.InitializingNewItem += (sender, e) =>
             {
                 //NewProduct newCourse = e.NewItem as NewProduct;
@@ -68,6 +93,27 @@ namespace FerreSystemWPF
 
         private void Add_Click(object sender, RoutedEventArgs e)
         {
+            ObservableCollection<NewProduct> lproducts = (ObservableCollection<NewProduct>) this.FindResource("products");
+
+            foreach (var item in lproducts)
+            {
+                Product tmp = new Product();
+                tmp.Name = item.Name;
+                if (item.PurchPriceDol != null && item.PurchPriceDol != 0)
+                {
+                    tmp.PurchPriceDol = item.PurchPriceDol;
+                }
+                else
+                    tmp.PurchPriceSol = item.PurchPriceSol;
+
+                tmp.RetailPrice = item.RetailPrice;
+                tmp.WholesalePrice = item.WholesalePrice;
+                tmp.Stock = item.Quantity;
+
+                HttpServices.CreateProductAsync(client, tmp);
+            }
+            MessageBox.Show("Productos Agregados correctamente");
+            this.Close();
             /*
             List<NewProduct> newProducts = AddProductsList.Items.OfType<NewProduct>().ToList();
             Trace.WriteLine(newProducts[0].Quantity);
@@ -111,7 +157,7 @@ namespace FerreSystemWPF
             }
         }
     }
-
+    
     public class NewProducts : ObservableCollection<NewProduct>
     {
         public NewProducts()

@@ -74,6 +74,25 @@ namespace FerreSystemApi.Controllers
             return new NoContentResult();
         }
 
+        [HttpPut("{ex}")]
+        public IActionResult UpdateExchange(double exRate)
+        {
+            IQueryable<Product> plist = _context.Products.Where(t => t.PurchPriceDol != null);
+            if (plist == null)
+            {
+                return NotFound();
+            }
+
+            foreach (var item in plist)
+            {
+                item.PurchPriceSol = item.PurchPriceDol * exRate;
+                _context.Products.Update(item);
+            }
+
+            _context.SaveChanges();
+            return new NoContentResult();
+        }
+
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {

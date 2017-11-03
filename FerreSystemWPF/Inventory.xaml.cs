@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -22,16 +23,29 @@ namespace FerreSystemWPF
     /// </summary>
     public partial class Inventory : Window
     {
+        HttpClient client;
+
+        IEnumerable<Product> _products = null;
+        public IEnumerable<Product> Products
+        {
+            get { return _products; }
+            set { _products = value; }
+        }
+
+        public double exrate = Convert.ToDouble(File.ReadAllText("exrate.txt"));
 
         public Inventory()
         {
             InitializeComponent();
+            DataContext = this;
             RunAsync();
+            ExchangeRate.Text = exrate + "";
+            Update.IsEnabled = false;
         }
 
         private void RunAsync()
         {
-            HttpClient client = new HttpClient();
+            client = new HttpClient();
 
             client.BaseAddress = new Uri("http://localhost:50236");
             client.DefaultRequestHeaders.Accept.Clear();
@@ -39,12 +53,7 @@ namespace FerreSystemWPF
 
             try
             {
-                var list = HttpServices.GetAllProductsAsync(client);
-                foreach(var item in list)
-                {
-                    Trace.WriteLine(item.Name);
-                }
-                ProductsList.ItemsSource = list;
+                Products = HttpServices.GetAllProductsAsync(client);
             }
             catch (Exception e)
             {
@@ -85,6 +94,30 @@ namespace FerreSystemWPF
         {
             AddProducts aproducts = new AddProducts();
             aproducts.ShowDialog();
+        }
+
+        private void Update_Click(object sender, RoutedEventArgs e)
+        {
+            exrate = Convert.ToDouble(ExchangeRate.Text);
+            foreach (var item in Products)
+            {
+                if (item.PurchPriceDol != null)
+                {
+                    item.PurchPriceSol = item.PurchPriceDol * exrate;
+                    try
+                    {
+                        HttpServices.UpdateProductAsync(client, item);
+                    }
+                    catch (Exception ex)
+                    {
+                        Trace.WriteLine(ex.Message);
+                    }
+                }
+            }
+            ProductsList.ItemsSource = null;
+            ProductsList.ItemsSource = Products;
+            File.WriteAllText("exrate.txt", exrate + "");
+            MessageBox.Show("Lista Actualizada");
         }
     }
 }

@@ -24,37 +24,37 @@ namespace FerreSystemWPF
             return product;
         }
 
-        public static async Task<Product> GetProductAsync(HttpClient client, int id)
+        public static Product GetProductAsync(HttpClient client, int id)
         {
             Product product = null;
-            HttpResponseMessage response = await client.GetAsync($"api/ferre/{id}");
+            HttpResponseMessage response = client.GetAsync($"api/ferre/{id}").Result;
             if (response.IsSuccessStatusCode)
             {
-                product = await response.Content.ReadAsAsync<Product>();
+                product = response.Content.ReadAsAsync<Product>().Result;
             }
             return product;
         }
 
-        public static async Task<Uri> CreateProductAsync(HttpClient client, Product product)
+        public static Uri CreateProductAsync(HttpClient client, Product product)
         {
-            HttpResponseMessage response = await client.PostAsJsonAsync("api/ferre", product);
+            HttpResponseMessage response = client.PostAsJsonAsync("api/ferre", product).Result;
             response.EnsureSuccessStatusCode();
             
             return response.Headers.Location;
         }
 
-        public static async Task<Product> UpdateProductAsync(HttpClient client, Product product)
+        public static Product UpdateProductAsync(HttpClient client, Product product)
         {
-            HttpResponseMessage response = await client.PutAsJsonAsync($"api/ferre/{product.ProductId}", product);
+            HttpResponseMessage response = client.PutAsJsonAsync($"api/ferre/{product.ProductId}", product).Result;
             response.EnsureSuccessStatusCode();
             
-            product = await response.Content.ReadAsAsync<Product>();
+            product = response.Content.ReadAsAsync<Product>().Result;
             return product;
         }
 
-        public static async Task<HttpStatusCode> DeleteProductAsync(HttpClient client, int id)
+        public static HttpStatusCode DeleteProductAsync(HttpClient client, int id)
         {
-            HttpResponseMessage response = await client.DeleteAsync($"api/ferre/{id}");
+            HttpResponseMessage response = client.DeleteAsync($"api/ferre/{id}").Result;
             return response.StatusCode;
         }
     }

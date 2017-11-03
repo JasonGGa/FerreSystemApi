@@ -9,10 +9,10 @@
         SizeToContent="WidthAndHeight"
         WindowStartupLocation="CenterScreen"
         Loaded="Window_Loaded">
+    <Window.Resources>
+        <local:NewProducts x:Key="products"/>
+    </Window.Resources>
     <Grid Height="350" Width="800">
-        <Grid.Resources>
-            <local:NewProducts x:Key="products"/>
-        </Grid.Resources>
         <DataGrid x:Name="AddProductsList" HorizontalAlignment="Left" Height="260" Margin="20,20,0,0" VerticalAlignment="Top" Width="760" ItemsSource="{StaticResource products}" IsReadOnly="False" CanUserAddRows="True" AutoGenerateColumns="False" RowEditEnding="AddProductsList_RowEditEnding">
             <!--
             <DataGrid.InputBindings>

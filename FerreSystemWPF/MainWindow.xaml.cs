@@ -62,7 +62,6 @@ namespace FerreSystemWPF
             InitializeComponent();
             DataContext = this;
             RunAsync();
-            File.WriteAllText("exrate.txt","3.25");
             TicketTotalPrice.Add(new TicketItem { TotalPrice = 0});
         }
 
@@ -118,7 +117,9 @@ namespace FerreSystemWPF
             }
             else
             {
-                Clear();
+               Clear();
+
+
             }
         }
 
@@ -235,5 +236,14 @@ namespace FerreSystemWPF
         {
             DelItem.IsEnabled = true;
         }
+
+        private void bClear_Click(object sender, RoutedEventArgs e)
+        {
+            Clear();
+            TicketItemList.Clear();
+            TicketTotalPrice.Clear();
+            TicketTotalPrice.Add(new TicketItem { TotalPrice = 0 });
+        }
+
     }
 }
